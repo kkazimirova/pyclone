@@ -1,9 +1,5 @@
 '''
 Utility functions for post-processing the results of a PyClone analysis.
-
-Created on 2013-02-08
-
-@author: Andrew Roth
 '''
 from collections import defaultdict
 

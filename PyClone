@@ -72,6 +72,31 @@ build_prior_parser.add_argument('--g_v', choices=['single', 'all', 'vague'], def
                                 genotypes compatible with "cn_v" assigning equal weights. Default vague.''')
 
 build_prior_parser.set_defaults(func=build_input_file)
+#----------------------------------------------------------------------------------------------------------------------
+build_prior_parser = subparsers.add_parser('build_input_file', help='''Build an input file for PyClone analysis.''')
+
+build_prior_parser.add_argument('in_file',
+                                help='Path to tab separated input file. See examples for format.')
+
+build_prior_parser.add_argument('out_file',
+                                help='Path where PyClone formatted input file will be written.')
+
+build_prior_parser.add_argument('--error_rate', default=1e-3, type=float,
+                                help='''Estimated sequencing error rate. Default 1e-3.''')
+
+build_prior_parser.add_argument('--cn_r', choices=['normal', 'variant', 'vague'], default='vague',
+                                help='''Method for setting the copy number of the reference population. "normal" sets it
+                                to the value of "cn_n" in the input file. "variant" sets it to the value of "cn_v" in
+                                the input file. "vague" considers both options with equal prior weight. Default
+                                vague.''')
+
+build_prior_parser.add_argument('--g_v', choices=['single', 'all', 'vague'], default='vague',
+                                help='''Method used to set the possible genotypes  of the variant population. "single"
+                                assumes the variant population has the genotype with one variant allele. "all" assumes
+                                the variant population has the genotype with all variant alleles. "vague" considers all
+                                genotypes compatible with "cn_v" assigning equal weights. Default vague.''')
+
+build_prior_parser.set_defaults(func=build_input_file)
 
 #---------------------------------------------------------------------------------------------------------------------- 
 cluster_parser = subparsers.add_parser('cluster', help='''Cluster the results of a PyClone analysis.''')
@@ -138,7 +163,7 @@ plot_sm_parser.set_defaults(func=plot_similarity_matrix)
 
 #---------------------------------------------------------------------------------------------------------------------- 
 
-analyse_parser.set_defaults(func=run_dp_model)
+# analyse_parser.set_defaults(func=run_dp_model)
 
 args = parser.parse_args()
 

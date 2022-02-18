@@ -1,9 +1,5 @@
 '''
 Functions for clustering results from PyClone analysis.
-
-Created on 2013-02-08
-
-@author: Andrew Roth
 '''
 from __future__ import division
 

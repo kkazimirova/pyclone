@@ -57,8 +57,3 @@ if __name__ == "__main__":
     
     profiler.print_stats()
     
-#    import cProfile
-#    
-#    cProfile.run("main()")
-    
-#    main()

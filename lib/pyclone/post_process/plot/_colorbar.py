@@ -1,8 +1,3 @@
-'''
-Created on 2012-08-05
-
-@author: Andrew Roth
-'''
 import matplotlib.pyplot as plot
 
 class ColorBar(object):

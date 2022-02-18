@@ -1,8 +1,3 @@
-'''
-Created on 2012-05-10
-
-@author: Andrew
-'''
 import bz2
 import csv
 import os

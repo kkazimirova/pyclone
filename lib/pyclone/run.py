@@ -1,8 +1,3 @@
-'''
-Created on 2012-02-08
-
-@author: Andrew Roth
-'''
 from __future__ import division
 
 import csv
@@ -173,3 +168,7 @@ def _get_states(cn_n, cn_v, cn_r_method, g_v_method):
 
 def list_to_csv(l):
     return ",".join([str(x) for x in l])
+
+
+def klarinka(file):
+    print ('Lala, som tu', file)

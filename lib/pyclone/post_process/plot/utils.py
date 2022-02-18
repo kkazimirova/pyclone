@@ -1,8 +1,3 @@
-'''
-Created on 2012-08-20
-
-@author: Andrew Roth
-'''
 import csv
 csv.field_size_limit(10000000)
 

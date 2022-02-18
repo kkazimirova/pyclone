@@ -1,8 +1,3 @@
-'''
-Created on 2012-08-05
-
-@author: Andrew Roth
-'''
 from __future__ import division
 
 import matplotlib.pyplot as plot

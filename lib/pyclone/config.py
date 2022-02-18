@@ -1,8 +1,3 @@
-'''
-Created on 2013-02-12
-
-@author: Andrew Roth
-'''
 from __future__ import division
 
 class Mutation(object):
@@ -45,10 +40,10 @@ class Mutation(object):
     
     def to_dict(self):
         return {
-                'id' : self.id,
-                'ref_counts' : self.ref_counts,
-                'var_counts' : self.var_counts,
-                'states' : [x.to_dict() for x in self.states]
+                'id': self.id,
+                'ref_counts': self.ref_counts,
+                'var_counts': self.var_counts,
+                'states': [x.to_dict() for x in self.states]
                 }
 
 class State(object):
@@ -110,9 +105,7 @@ class State(object):
         else:
             return num_var_alleles / cn        
 
-#=======================================================================================================================
-# Factory functions
-#=======================================================================================================================
+
 def load_mutation_from_dict(d):
     mutation_id = d['id']
         
