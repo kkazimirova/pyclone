@@ -6,7 +6,7 @@
 #=======================================================================================================================
 import argparse
 from pyclone.run import build_input_file, cluster_trace, plot_cellular_frequencies, plot_similarity_matrix, run_dp_model, \
-                        klarinka, klarinka_analyse
+                        klarinka, klarinka_analyse, klarinka_plot_cf
 
 parser = argparse.ArgumentParser(prog='PyClone')
 
@@ -136,6 +136,26 @@ klarinka_dp_parser.add_argument('--concentration_prior_rate', default=1, type=fl
                             1.''')
 
 klarinka_dp_parser.set_defaults(func=klarinka_analyse)
+
+#----------------------------------------------------------------------------------------------------------------------
+klarinka_plot_cellular_freq = subparsers.add_parser('klarinka_plot_cf',
+                                       help='''Plot the posterior densities of the cellular frequencies of the mutations
+                                       from a PyClone analysis.''')
+
+klarinka_plot_cellular_freq.add_argument('in_dir',
+                            help='Path to directory where the PyClone analysis trace was written.')
+
+klarinka_plot_cellular_freq.add_argument('out_dir',
+                            help='Path to file where plot will be saved.')
+
+klarinka_plot_cellular_freq.add_argument('--burnin', default=0, type=int,
+                            help='''Number of samples to discard as burning for the MCMC chain. Default is 0.''')
+
+klarinka_plot_cellular_freq.add_argument('--thin', default=1, type=int,
+                            help='''Number of samples to thin MCMC trace. For example if thin=10 every tenth sample
+                            after burning will be used for inference. Default is 1.''')
+
+klarinka_plot_cellular_freq.set_defaults(func=klarinka_plot_cf)
 
 #---------------------------------------------------------------------------------------------------------------------- 
 cluster_parser = subparsers.add_parser('cluster', help='''Cluster the results of a PyClone analysis.''')

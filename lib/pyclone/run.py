@@ -258,3 +258,25 @@ def klarinka_analyse(args):
         sampler.sample(data.values(), trace_db, num_iters=args.num_iters, seed=args.seed)
 
         trace_db.close()
+
+
+def klarinka_plot_cf(args):
+    import pyclone.post_process.plot as plot
+
+    if not os.path.exists(args.out_dir):
+        os.makedirs(args.out_dir)
+
+    for dir in os.listdir(args.in_dir):
+        print (dir)
+
+        cellular_file = os.path.join(args.in_dir, dir, 'cellular_frequencies.tsv.bz2')
+        out_file = os.path.join(args.out_dir, dir)
+
+        print (cellular_file)
+        print (out_file)
+
+        print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
+            in_file=cellular_file, burnin=args.burnin, thin=args.thin)
+
+        plot.plot_cellular_frequencies(cellular_file, out_file, args.burnin, args.thin)
+
