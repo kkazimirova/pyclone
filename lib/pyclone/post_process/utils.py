@@ -32,7 +32,7 @@ def _load_trace(trace_file, burnin, thin, cast_func):
         
         if i % thin == 0:
             for mutation in row:
-                trace[mutation].append(cast_func(row[mutation]))
+                trace[mutation].append(cast_func(row[mutation]))   # dict {id_mutation:[values]}
         
     fh.close()
     

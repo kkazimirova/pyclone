@@ -1,10 +1,14 @@
 from __future__ import division
 
 import csv
+import math
 import os
 import random
 import shutil
+
+import bz2
 import yaml
+import pandas
 
 from pyclone.sampler import DirichletProcessSampler, DataPoint
 from pyclone.trace import TraceDB
@@ -12,9 +16,6 @@ from pyclone.config import load_mutation_from_dict, Mutation, State
 
 
 def run_dp_model(args):
-    '''
-    Run a fresh instance of the DP model.
-    '''
     data = load_pyclone_data(args.in_file)
 
     trace_db = TraceDB(args.out_dir, data.keys())
@@ -37,9 +38,6 @@ def run_dp_model(args):
 
 
 def load_pyclone_data(file_name):
-    '''
-    Load data from PyClone formatted input file.
-    '''
     data = {}
 
     fh = open(file_name)
@@ -66,15 +64,16 @@ def load_pyclone_data(file_name):
     return data
 
 
-def cluster_trace(args):
-    from pyclone.post_process.cluster import cluster_pyclone_trace
+# def cluster_trace(args):
+#     from pyclone.post_process.cluster import cluster_pyclone_trace
+#
+#     pyclone_file = os.path.join(args.trace_dir, 'labels.tsv.bz2')
+#
+#     print '''Clustering PyClone trace file {in_file} using {method} with a burnin of {burnin} and using every {thin}th sample'''.format(
+#         in_file=pyclone_file, method=args.method, burnin=args.burnin, thin=args.thin)
+#
+#     cluster_pyclone_trace(pyclone_file, args.out_file, args.method, args.burnin, args.thin)
 
-    pyclone_file = os.path.join(args.trace_dir, 'labels.tsv.bz2')
-
-    print '''Clustering PyClone trace file {in_file} using {method} with a burnin of {burnin} and using every {thin}th sample'''.format(
-        in_file=pyclone_file, method=args.method, burnin=args.burnin, thin=args.thin)
-
-    cluster_pyclone_trace(pyclone_file, args.out_file, args.method, args.burnin, args.thin)
 
 
 def plot_cellular_frequencies(args):
@@ -82,21 +81,71 @@ def plot_cellular_frequencies(args):
 
     pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
 
+
     print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
         in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
 
     plot.plot_cellular_frequencies(pyclone_file, args.out_file, args.burnin, args.thin)
 
 
-def plot_similarity_matrix(args):
-    import pyclone.post_process.plot as plot
+def split_file_and_plot(args):
+    if not os.path.exists(args.out_dir):
+        os.makedirs(args.out_dir)
 
-    pyclone_file = os.path.join(args.trace_dir, 'labels.tsv.bz2')
 
-    print '''Plotting similarity matrix from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
-        in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
 
-    plot.plot_similarity_matrix(pyclone_file, args.out_file, args.burnin, args.thin)
+    size_per_file = 500
+
+    cell_freq_file_path = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
+    cell_freq_file = bz2.BZ2File(cell_freq_file_path)
+    df_cell_freq = pandas.read_csv(cell_freq_file, sep='\t')
+
+
+    columns = len(df_cell_freq.columns)
+
+    iter = int(math.ceil(columns / size_per_file))
+
+    print (columns)
+
+    for i in range(iter):
+        if (i + 1)*size_per_file < columns:
+
+            df_subset = df_cell_freq.iloc[:, i*size_per_file:(i + 1)*size_per_file]
+        else:
+            df_subset = df_cell_freq.iloc[:, i * size_per_file:]
+
+        file_name = 'cell_freq_' + str(i) + '.tsv'
+        path = os.path.join(args.trace_dir, file_name)
+        df_subset.to_csv(path, sep='\t', index=False)
+        print ('created csv')
+        bz2_file = bz2.compress(open(path, 'rb').read())
+        final_file = file_name + '.bz2'
+        final_file_path = os.path.join(args.trace_dir, final_file)
+        bla = open(final_file_path, "wb")
+        bla.write(bz2_file)
+        bla.close()
+        print ('compressed')
+
+        import pyclone.post_process.plot as plot
+        plot_file = os.path.join(args.out_dir, ('plot_' + str(i)))
+        plot.plot_cellular_frequencies(final_file_path, plot_file, args.burnin, args.thin)
+
+
+
+
+
+    cell_freq_file.close()
+
+
+# def plot_similarity_matrix(args):
+#     import pyclone.post_process.plot as plot
+#
+#     pyclone_file = os.path.join(args.trace_dir, 'labels.tsv.bz2')
+#
+#     print '''Plotting similarity matrix from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
+#         in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
+#
+#     plot.plot_similarity_matrix(pyclone_file, args.out_file, args.burnin, args.thin)
 
 
 def build_input_file(args):
@@ -181,7 +230,7 @@ def list_to_csv(l):
     return ",".join([str(x) for x in l])
 
 
-def klarinka(args):
+def build_random_samples_input_files(args):
 
     out_dir_path = args.out_dir
     if not os.path.exists(out_dir_path):
@@ -228,7 +277,7 @@ def klarinka(args):
         fh.close()
 
 
-def klarinka_analyse(args):
+def random_samples_analyse(args):
 
     for file_name in os.listdir(args.in_dir):
         print (file_name)
@@ -260,7 +309,7 @@ def klarinka_analyse(args):
         trace_db.close()
 
 
-def klarinka_plot_cf(args):
+def random_samples_plot_cf(args):
     import pyclone.post_process.plot as plot
 
     if not os.path.exists(args.out_dir):

@@ -33,7 +33,7 @@ class CellularFrequencyPlot(object):
             clusters = self.clusters
         
         if sort_genes:
-            for  cluster, color in zip(clusters, self.colors):
+            for cluster, color in zip(clusters, self.colors):
                 for gene in cluster:
                     pos = self.positions[i]
                     
@@ -78,6 +78,7 @@ class CellularFrequencyPlot(object):
 
         for gene in self.trace:
             self.pdfs[gene] = PosteriorDensity(self.trace[gene])
+            print (self.pdfs[gene])
     
     def _init_plot_area(self):
         self._fig = plot.figure()
