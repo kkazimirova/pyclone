@@ -88,53 +88,60 @@ def plot_cellular_frequencies(args):
     plot.plot_cellular_frequencies(pyclone_file, args.out_file, args.burnin, args.thin)
 
 
-def split_file_and_plot(args):
+def split_and_plot(args):
+    import pyclone.post_process.plot as plot
+
     if not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
 
+    pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
+
+    # print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
+    #     in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
+
+    plot.split_file_and_plot(pyclone_file, args.out_dir, args.size, args.burnin, args.thin)
 
 
-    size_per_file = 500
-
-    cell_freq_file_path = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
-    cell_freq_file = bz2.BZ2File(cell_freq_file_path)
-    df_cell_freq = pandas.read_csv(cell_freq_file, sep='\t')
-
-
-    columns = len(df_cell_freq.columns)
-
-    iter = int(math.ceil(columns / size_per_file))
-
-    print (columns)
-
-    for i in range(iter):
-        if (i + 1)*size_per_file < columns:
-
-            df_subset = df_cell_freq.iloc[:, i*size_per_file:(i + 1)*size_per_file]
-        else:
-            df_subset = df_cell_freq.iloc[:, i * size_per_file:]
-
-        file_name = 'cell_freq_' + str(i) + '.tsv'
-        path = os.path.join(args.trace_dir, file_name)
-        df_subset.to_csv(path, sep='\t', index=False)
-        print ('created csv')
-        bz2_file = bz2.compress(open(path, 'rb').read())
-        final_file = file_name + '.bz2'
-        final_file_path = os.path.join(args.trace_dir, final_file)
-        bla = open(final_file_path, "wb")
-        bla.write(bz2_file)
-        bla.close()
-        print ('compressed')
-
-        import pyclone.post_process.plot as plot
-        plot_file = os.path.join(args.out_dir, ('plot_' + str(i)))
-        plot.plot_cellular_frequencies(final_file_path, plot_file, args.burnin, args.thin)
-
-
-
-
-
-    cell_freq_file.close()
+# def split_file_and_plot(args):
+#     if not os.path.exists(args.out_dir):
+#         os.makedirs(args.out_dir)
+#
+#     size_per_file = 500
+#
+#     cell_freq_file_path = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
+#     cell_freq_file = bz2.BZ2File(cell_freq_file_path)
+#     df_cell_freq = pandas.read_csv(cell_freq_file, sep='\t')
+#
+#     columns = len(df_cell_freq.columns)
+#
+#     iter = int(math.ceil(columns / size_per_file))
+#
+#     print (columns)
+#
+#     for i in range(iter):
+#         if (i + 1)*size_per_file < columns:
+#
+#             df_subset = df_cell_freq.iloc[:, i*size_per_file:(i + 1)*size_per_file]
+#         else:
+#             df_subset = df_cell_freq.iloc[:, i * size_per_file:]
+#
+#         file_name = 'cell_freq_' + str(i) + '.tsv'
+#         path = os.path.join(args.trace_dir, file_name)
+#         df_subset.to_csv(path, sep='\t', index=False)
+#         print ('created csv')
+#         bz2_file = bz2.compress(open(path, 'rb').read())
+#         final_file = file_name + '.bz2'
+#         final_file_path = os.path.join(args.trace_dir, final_file)
+#         bla = open(final_file_path, "wb")
+#         bla.write(bz2_file)
+#         bla.close()
+#         print ('compressed')
+#
+#         import pyclone.post_process.plot as plot
+#         plot_file = os.path.join(args.out_dir, ('plot_' + str(i)))
+#         plot.plot_cellular_frequencies(final_file_path, plot_file, args.burnin, args.thin)
+#
+#     cell_freq_file.close()
 
 
 # def plot_similarity_matrix(args):

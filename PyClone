@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 
 #=======================================================================================================================
-# PyClone
-# Author : Andrew Roth
-#=======================================================================================================================
 import argparse
-from pyclone.run import build_input_file, cluster_trace, plot_cellular_frequencies, plot_similarity_matrix, run_dp_model, \
-                        klarinka, klarinka_analyse, klarinka_plot_cf
+from pyclone.run import build_input_file, plot_cellular_frequencies, run_dp_model, build_random_samples_input_files,\
+                        random_samples_analyse, random_samples_plot_cf, split_and_plot
 
 parser = argparse.ArgumentParser(prog='PyClone')
 
@@ -51,10 +48,11 @@ analyse_parser.set_defaults(func=run_dp_model)
 build_prior_parser = subparsers.add_parser('build_input_file', help='''Build an input file for PyClone analysis.''')
 
 build_prior_parser.add_argument('in_file',
-                                help='Path to tab separated input file. See examples for format.')
+                                help='''Path to tab separated input file. It must contain columns: mutation_id, 
+                                ref_counts, var_counts, cn_n, cn_v.''')
 
 build_prior_parser.add_argument('out_file',
-                                help='Path where PyClone formatted input file will be written.')
+                                help='Path where formatted input file will be written.')
 
 build_prior_parser.add_argument('--error_rate', default=1e-3, type=float,
                                 help='''Estimated sequencing error rate. Default 1e-3.''')
@@ -73,112 +71,113 @@ build_prior_parser.add_argument('--g_v', choices=['single', 'all', 'vague'], def
 
 build_prior_parser.set_defaults(func=build_input_file)
 #----------------------------------------------------------------------------------------------------------------------
-klarinka_parser = subparsers.add_parser('klarinka', help='''BlaBlaBla''')
+random_samples_input_parser = subparsers.add_parser('build_random_sample_input_files', help='''BlaBlaBla''')
 
-klarinka_parser.add_argument('in_file',
-                                help='blabla')
+random_samples_input_parser.add_argument('in_file',
+                                         help='''Path to tab separated input file. It must contain columns: mutation_id, 
+                                             ref_counts, var_counts, cn_n, cn_v.''')
 
-klarinka_parser.add_argument('out_dir',
-                                help='blabla')
+random_samples_input_parser.add_argument('out_dir',
+                                         help='blabla')
 
-klarinka_parser.add_argument('count', default=10,
-                                help='blabla')
+random_samples_input_parser.add_argument('count', default=10,
+                                         help='blabla')
 
-klarinka_parser.add_argument('size', default=3,
-                                help='blabla')
+random_samples_input_parser.add_argument('size', default=3,
+                                         help='blabla')
 
-klarinka_parser.add_argument('--cn_r', choices=['normal', 'variant', 'vague'], default='vague',
-                                help='''Method for setting the copy number of the reference population. "normal" sets it
+random_samples_input_parser.add_argument('--cn_r', choices=['normal', 'variant', 'vague'], default='vague',
+                                         help='''Method for setting the copy number of the reference population. "normal" sets it
                                 to the value of "cn_n" in the input file. "variant" sets it to the value of "cn_v" in
                                 the input file. "vague" considers both options with equal prior weight. Default
                                 vague.''')
 
-klarinka_parser.add_argument('--g_v', choices=['single', 'all', 'vague'], default='vague',
-                                help='''Method used to set the possible genotypes  of the variant population. "single"
+random_samples_input_parser.add_argument('--g_v', choices=['single', 'all', 'vague'], default='vague',
+                                         help='''Method used to set the possible genotypes  of the variant population. "single"
                                 assumes the variant population has the genotype with one variant allele. "all" assumes
                                 the variant population has the genotype with all variant alleles. "vague" considers all
                                 genotypes compatible with "cn_v" assigning equal weights. Default vague.''')
 
-klarinka_parser.add_argument('--error_rate', default=1e-3, type=float,
-                                help='''Estimated sequencing error rate. Default 1e-3.''')
+random_samples_input_parser.add_argument('--error_rate', default=1e-3, type=float,
+                                         help='''Estimated sequencing error rate. Default 1e-3.''')
 
-klarinka_parser.set_defaults(func=klarinka)
+random_samples_input_parser.set_defaults(func=build_random_samples_input_files)
 
 #----------------------------------------------------------------------------------------------------------------------
-klarinka_dp_parser = subparsers.add_parser('klarinka_analyse', help='''Start a new PyClone analysis.''')
+random_samples_analyse_parser = subparsers.add_parser('random_samples_analyse', help='''Start a new PyClone analysis.''')
 
-klarinka_dp_parser.add_argument('in_dir',
-                            help='blabla')
+random_samples_analyse_parser.add_argument('in_dir',
+                                           help='blabla')
 
-klarinka_dp_parser.add_argument('out_dir',
-                            help='Path where trace files for MCMC sampler will be written.')
+random_samples_analyse_parser.add_argument('out_dir',
+                                           help='Path where trace files for MCMC sampler will be written.')
 
-klarinka_dp_parser.add_argument('--num_iters', default=10000, type=int,
-                            help='''How many iterations of the MCMC chain will run. Default 10,000.''')
+random_samples_analyse_parser.add_argument('--num_iters', default=10000, type=int,
+                                           help='''How many iterations of the MCMC chain will run. Default 10,000.''')
 
-klarinka_dp_parser.add_argument('--concentration', default=None, type=int,
-                            help='''Concentration (alpha) value for DP sampler. If not set it will be estimated. Default
+random_samples_analyse_parser.add_argument('--concentration', default=None, type=int,
+                                           help='''Concentration (alpha) value for DP sampler. If not set it will be estimated. Default
                             estimated.''')
 
-klarinka_dp_parser.add_argument('--tumour_content', default=1, type=float,
-                            help='''The fraction of the cancer cells in the sample. Default 1.''')
+random_samples_analyse_parser.add_argument('--tumour_content', default=1, type=float,
+                                           help='''The fraction of the cancer cells in the sample. Default 1.''')
 
-klarinka_dp_parser.add_argument('--seed', default=None, type=int,
-                            help='''Set random seed so results can be reproduced. By default a random seed is
+random_samples_analyse_parser.add_argument('--seed', default=None, type=int,
+                                           help='''Set random seed so results can be reproduced. By default a random seed is
                             chosen.''')
 
-klarinka_dp_parser.add_argument('--concentration_prior_shape', default=1, type=float,
-                            help='''Prior on the shape parameter in the prior for the concentration parameter. Default
+random_samples_analyse_parser.add_argument('--concentration_prior_shape', default=1, type=float,
+                                           help='''Prior on the shape parameter in the prior for the concentration parameter. Default
                             1.''')
 
-klarinka_dp_parser.add_argument('--concentration_prior_rate', default=1, type=float,
-                            help='''Prior on the rate parameter in the prior for the concentration parameter. Default
+random_samples_analyse_parser.add_argument('--concentration_prior_rate', default=1, type=float,
+                                           help='''Prior on the rate parameter in the prior for the concentration parameter. Default
                             1.''')
 
-klarinka_dp_parser.set_defaults(func=klarinka_analyse)
+random_samples_analyse_parser.set_defaults(func=random_samples_analyse)
 
 #----------------------------------------------------------------------------------------------------------------------
-klarinka_plot_cellular_freq = subparsers.add_parser('klarinka_plot_cf',
-                                       help='''Plot the posterior densities of the cellular frequencies of the mutations
+random_samples_plot_parser = subparsers.add_parser('random_samples_plot_cf',
+                                                   help='''Plot the posterior densities of the cellular frequencies of the mutations
                                        from a PyClone analysis.''')
 
-klarinka_plot_cellular_freq.add_argument('in_dir',
-                            help='Path to directory where the PyClone analysis trace was written.')
+random_samples_plot_parser.add_argument('in_dir',
+                                        help='Path to directory where the PyClone analysis trace was written.')
 
-klarinka_plot_cellular_freq.add_argument('out_dir',
-                            help='Path to file where plot will be saved.')
+random_samples_plot_parser.add_argument('out_dir',
+                                        help='Path to file where plot will be saved.')
 
-klarinka_plot_cellular_freq.add_argument('--burnin', default=0, type=int,
-                            help='''Number of samples to discard as burning for the MCMC chain. Default is 0.''')
+random_samples_plot_parser.add_argument('--burnin', default=0, type=int,
+                                        help='''Number of samples to discard as burning for the MCMC chain. Default is 0.''')
 
-klarinka_plot_cellular_freq.add_argument('--thin', default=1, type=int,
-                            help='''Number of samples to thin MCMC trace. For example if thin=10 every tenth sample
+random_samples_plot_parser.add_argument('--thin', default=1, type=int,
+                                        help='''Number of samples to thin MCMC trace. For example if thin=10 every tenth sample
                             after burning will be used for inference. Default is 1.''')
 
-klarinka_plot_cellular_freq.set_defaults(func=klarinka_plot_cf)
+random_samples_plot_parser.set_defaults(func=random_samples_plot_cf)
 
 #---------------------------------------------------------------------------------------------------------------------- 
-cluster_parser = subparsers.add_parser('cluster', help='''Cluster the results of a PyClone analysis.''')
-
-cluster_parser.add_argument('trace_dir',
-                            help='Path to directory where the PyClone analysis trace was written.')
-
-cluster_parser.add_argument('out_file',
-                            help='Path to file where clustering results will be written.')
-
-cluster_parser.add_argument('--method', default='mpear',
-                            choices=['affinity_propogation', 'complete_linkage', 'dbscan', 'dynamic_tree_cut', 'mpear',
-                                    'single_linkage', 'spectral_clustering'],
-                            help='''Method used to cluster the PyClone trace file. Default is mpear.''')
-
-cluster_parser.add_argument('--burnin', default=0, type=int,
-                            help='''Number of samples to discard as burning for the MCMC chain. Default is 0.''')
-
-cluster_parser.add_argument('--thin', default=1, type=int,
-                            help='''Number of samples to thin MCMC trace. For example if thin=10 every tenth sample
-                            after burning will be used for inference. Default is 1.''')
-
-cluster_parser.set_defaults(func=cluster_trace)
+# cluster_parser = subparsers.add_parser('cluster', help='''Cluster the results of a PyClone analysis.''')
+#
+# cluster_parser.add_argument('trace_dir',
+#                             help='Path to directory where the PyClone analysis trace was written.')
+#
+# cluster_parser.add_argument('out_file',
+#                             help='Path to file where clustering results will be written.')
+#
+# cluster_parser.add_argument('--method', default='mpear',
+#                             choices=['affinity_propogation', 'complete_linkage', 'dbscan', 'dynamic_tree_cut', 'mpear',
+#                                     'single_linkage', 'spectral_clustering'],
+#                             help='''Method used to cluster the PyClone trace file. Default is mpear.''')
+#
+# cluster_parser.add_argument('--burnin', default=0, type=int,
+#                             help='''Number of samples to discard as burning for the MCMC chain. Default is 0.''')
+#
+# cluster_parser.add_argument('--thin', default=1, type=int,
+#                             help='''Number of samples to thin MCMC trace. For example if thin=10 every tenth sample
+#                             after burning will be used for inference. Default is 1.''')
+#
+# cluster_parser.set_defaults(func=cluster_trace)
 
 #---------------------------------------------------------------------------------------------------------------------- 
 plot_cf_parser = subparsers.add_parser('plot_cellular_frequencies',
@@ -200,25 +199,47 @@ plot_cf_parser.add_argument('--thin', default=1, type=int,
 
 plot_cf_parser.set_defaults(func=plot_cellular_frequencies)
 
-#---------------------------------------------------------------------------------------------------------------------- 
-plot_sm_parser = subparsers.add_parser('plot_similarity_matrix',
-                                       help='''Plot a heat map of the posterior similarity matrix from a PyClone
-                                       analysis.''')
+#----------------------------------------------------------------------------------------------------------------------
+plot_cf_parser = subparsers.add_parser('split_and_plot_cf',
+                                       help='''''')
 
-plot_sm_parser.add_argument('trace_dir',
+plot_cf_parser.add_argument('trace_dir',
                             help='Path to directory where the PyClone analysis trace was written.')
 
-plot_sm_parser.add_argument('out_file',
-                            help='Path to file where plot will be saved.')
+plot_cf_parser.add_argument('out_dir',
+                            help='')
 
-plot_sm_parser.add_argument('--burnin', default=0, type=int,
+plot_cf_parser.add_argument('--size', default=10, type=int,
+                            help='''Number of samples to plot in a file.''')
+
+plot_cf_parser.add_argument('--burnin', default=0, type=int,
                             help='''Number of samples to discard as burning for the MCMC chain. Default is 0.''')
 
-plot_sm_parser.add_argument('--thin', default=1, type=int,
+plot_cf_parser.add_argument('--thin', default=1, type=int,
                             help='''Number of samples to thin MCMC trace. For example if thin=10 every tenth sample
                             after burning will be used for inference. Default is 1.''')
 
-plot_sm_parser.set_defaults(func=plot_similarity_matrix)
+plot_cf_parser.set_defaults(func=split_and_plot)
+
+#---------------------------------------------------------------------------------------------------------------------- 
+# plot_sm_parser = subparsers.add_parser('plot_similarity_matrix',
+#                                        help='''Plot a heat map of the posterior similarity matrix from a PyClone
+#                                        analysis.''')
+#
+# plot_sm_parser.add_argument('trace_dir',
+#                             help='Path to directory where the PyClone analysis trace was written.')
+#
+# plot_sm_parser.add_argument('out_file',
+#                             help='Path to file where plot will be saved.')
+#
+# plot_sm_parser.add_argument('--burnin', default=0, type=int,
+#                             help='''Number of samples to discard as burning for the MCMC chain. Default is 0.''')
+#
+# plot_sm_parser.add_argument('--thin', default=1, type=int,
+#                             help='''Number of samples to thin MCMC trace. For example if thin=10 every tenth sample
+#                             after burning will be used for inference. Default is 1.''')
+#
+# plot_sm_parser.set_defaults(func=plot_similarity_matrix)
 
 #---------------------------------------------------------------------------------------------------------------------- 
 

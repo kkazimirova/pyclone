@@ -8,6 +8,51 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plot
 import numpy as np
 
+
+class DensitySorter(object):
+    def __init__(self, frequencies_trace):
+        self.trace = frequencies_trace
+        self._init_clusters()
+
+    def _init_clusters(self):
+        self.gene_color = {}
+
+        self.clusters = [self.trace.keys(), ]  # [[id_mutacii]]
+
+    def sort_clusters(self):
+        sort_objective = np.mean
+
+        cluster_values = [[] for _ in self.clusters]
+
+        for i, cluster in enumerate(self.clusters):
+            for gene in cluster:
+                cluster_values[i].extend(self.trace[gene])
+
+        sort_values = []
+
+        for value in cluster_values:
+            sort_values.append(sort_objective(value))
+
+        new_clusters = []
+
+        for _, cluster in sorted(zip(sort_values, self.clusters)):
+            new_clusters.append(cluster)
+
+        for i, cluster in enumerate(new_clusters):
+            sort_values = [sort_objective(self.trace[gene]) for gene in cluster]
+
+            new_clusters[i] = []
+
+            for _, gene in sorted(zip(sort_values, cluster)):
+                new_clusters[i].append(gene)
+
+        return new_clusters
+
+
+
+
+
+
 class CellularFrequencyPlot(object):
     def __init__(self, frequencies_trace, clusters=None, cmap=cm.Set1):
         self.trace = frequencies_trace        
@@ -21,20 +66,30 @@ class CellularFrequencyPlot(object):
         self._init_plot_area()
         
         self._init_clusters()
-                
+
     def plot(self, sort_clusters=True, sort_genes=True):
         i = 0
         
         genes = []
         
         if sort_clusters:
+            print ("clusters before sort")
+            print (self.clusters)
             clusters = self._sort_clusters()
+            print ("clusters after sort")
+            print (clusters)
         else:
             clusters = self.clusters
         
         if sort_genes:
             for cluster, color in zip(clusters, self.colors):
+                print ("cluster")
+                print (cluster)
+                print ("color")
+                print (color)
                 for gene in cluster:
+                    print ("gene")
+                    print (gene)
                     pos = self.positions[i]
                     
                     self.pdfs[gene].plot(self._ax, pos, self.width, color=color)
@@ -103,15 +158,24 @@ class CellularFrequencyPlot(object):
         self.gene_color = {}
         
         if self.clusters == None:
-            self.clusters = [self.trace.keys(), ]
+            self.clusters = [self.trace.keys(), ] #[[id_mutacii]]
+            print ("self.clusters v init_clusters")
+            print (self.clusters)
                     
         self.num_clusters = len(self.clusters)
+        print("num_clasters")
+        print (self.num_clusters)
         
         self.colors = [self.cmap(i / 10, 1) for i in range(self.num_clusters)]
+        print ("self.colors")
+        print (self.colors)
         
         for i, cluster in enumerate(self.clusters):
+            print(i)
             for gene in cluster:
-                self.gene_color[gene] = self.colors[i]        
+                self.gene_color[gene] = self.colors[i]
+                print("gene_color")
+                print (self.gene_color[gene])
     
     def _fix_axes(self, genes):
         new_limits = (min(self.positions) - 0.5, max(self.positions) + 0.5)
