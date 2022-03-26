@@ -1,18 +1,16 @@
 from __future__ import division
 
 import csv
-import math
 import os
 import random
 import shutil
 
-import bz2
 import yaml
-import pandas
 
 from pyclone.sampler import DirichletProcessSampler, DataPoint
 from pyclone.trace import TraceDB
 from pyclone.config import load_mutation_from_dict, Mutation, State
+import pyclone.post_process.plot as plot
 
 
 def run_dp_model(args):
@@ -77,10 +75,7 @@ def load_pyclone_data(file_name):
 
 
 def plot_cellular_frequencies(args):
-    import pyclone.post_process.plot as plot
-
     pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
-
 
     print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
         in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
@@ -89,8 +84,6 @@ def plot_cellular_frequencies(args):
 
 
 def split_and_plot(args):
-    import pyclone.post_process.plot as plot
-
     if not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
 
@@ -100,6 +93,15 @@ def split_and_plot(args):
     #     in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
 
     plot.split_file_and_plot(pyclone_file, args.out_dir, args.size, args.burnin, args.thin)
+
+
+def my_plot_cellular_frequencies(args):
+    pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
+
+    # print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
+    #     in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
+
+    plot.my_plot(pyclone_file, args.out_dir, args.size, args.burnin, args.thin)
 
 
 # def split_file_and_plot(args):
