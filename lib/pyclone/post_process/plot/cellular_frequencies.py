@@ -206,24 +206,13 @@ class CellularFrequencyPlot(object):
 
 class MyCellularFrequencyPlot(object):
     def __init__(self, frequencies_trace = None, clusters=None):
-        self.trace = frequencies_trace
-
-        self.clusters = clusters
-
-        # self._init_pdfs()
-
-        # self._init_plot_area()
-
-        # self._init_clusters()
         pass
 
     def plot(self, trace, out_file,  sort_clusters=True, sort_genes=True):
-        number_of_mutations = len(trace)
-
         sns.set(style="white")
 
+        number_of_mutations = len(trace)
         plot, axes = plt.subplots(number_of_mutations, 1, figsize=(50, 2 * number_of_mutations))
-
         plot.tight_layout()
 
         for i, (key, value) in enumerate(trace.iteritems()):
@@ -232,6 +221,8 @@ class MyCellularFrequencyPlot(object):
             subplot = sns.distplot(data, hist=False, kde=True, ax=axes[i], label=key)
             subplot.legend(fontsize=15)
             subplot.set(yticklabels=[])
+            axes[i].set_xlim(0, 1)
+            axes[i].set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1])
 
             l1 = subplot.lines[0]
             x1 = l1.get_xydata()[:, 0]
@@ -241,6 +232,7 @@ class MyCellularFrequencyPlot(object):
             # subplot.margins(x=0, y=0.0)
 
         plot.savefig(out_file)
+        plt.close(plot)
 
     #     i = 0
     #

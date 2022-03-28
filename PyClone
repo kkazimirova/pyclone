@@ -3,7 +3,8 @@
 #=======================================================================================================================
 import argparse
 from pyclone.run import build_input_file, plot_cellular_frequencies, run_dp_model, build_random_samples_input_files,\
-                        random_samples_analyse, random_samples_plot_cf, split_and_plot, my_plot_cellular_frequencies
+                        random_samples_analyse, random_samples_plot_cf, split_and_plot, my_plot_cellular_frequencies, \
+                        my_random_samples_plot_cf
 
 parser = argparse.ArgumentParser(prog='PyClone')
 
@@ -80,10 +81,10 @@ random_samples_input_parser.add_argument('in_file',
 random_samples_input_parser.add_argument('out_dir',
                                          help='blabla')
 
-random_samples_input_parser.add_argument('count', default=10,
+random_samples_input_parser.add_argument('count', type=int,
                                          help='blabla')
 
-random_samples_input_parser.add_argument('size', default=3,
+random_samples_input_parser.add_argument('size', type=int,
                                          help='blabla')
 
 random_samples_input_parser.add_argument('--cn_r', choices=['normal', 'variant', 'vague'], default='vague',
@@ -156,6 +157,32 @@ random_samples_plot_parser.add_argument('--thin', default=1, type=int,
 
 random_samples_plot_parser.set_defaults(func=random_samples_plot_cf)
 
+#----------------------------------------------------------------------------------------------------------------------
+random_samples_plot_parser = subparsers.add_parser('my_random_samples_plot_cf',
+                                                   help='''Plot the posterior densities of the cellular frequencies of the mutations
+                                       from a PyClone analysis.''')
+
+random_samples_plot_parser.add_argument('in_dir',
+                                        help='Path to directory where the PyClone analysis trace was written.')
+
+random_samples_plot_parser.add_argument('out_dir',
+                                        help='Path to file where plot will be saved.')
+
+random_samples_plot_parser.add_argument('--split', choices=["0", "1"], default=1,
+                                        help=''' ''')
+
+random_samples_plot_parser.add_argument('--size', default=300, type=int,
+                                        help=''' iba pre split ''')
+
+random_samples_plot_parser.add_argument('--burnin', default=0, type=int,
+                                        help='''Number of samples to discard as burning for the MCMC chain. Default is 0.''')
+
+random_samples_plot_parser.add_argument('--thin', default=1, type=int,
+                                        help='''Number of samples to thin MCMC trace. For example if thin=10 every tenth sample
+                            after burning will be used for inference. Default is 1.''')
+
+random_samples_plot_parser.set_defaults(func=my_random_samples_plot_cf)
+
 #---------------------------------------------------------------------------------------------------------------------- 
 # cluster_parser = subparsers.add_parser('cluster', help='''Cluster the results of a PyClone analysis.''')
 #
@@ -210,7 +237,7 @@ plot_cf_parser.add_argument('trace_dir',
 plot_cf_parser.add_argument('out_dir',
                             help='Path to file where plot will be saved.')
 
-plot_cf_parser.add_argument('--size', default=200, type=int,
+plot_cf_parser.add_argument('--size', default=300, type=int,
                             help='''Number of samples to plot in a file.''')
 
 plot_cf_parser.add_argument('--burnin', default=0, type=int,
@@ -232,7 +259,7 @@ plot_cf_parser.add_argument('trace_dir',
 plot_cf_parser.add_argument('out_dir',
                             help='')
 
-plot_cf_parser.add_argument('--size', default=200, type=int,
+plot_cf_parser.add_argument('--size', default=300, type=int,
                             help='''Number of samples to plot in a file.''')
 
 plot_cf_parser.add_argument('--burnin', default=0, type=int,

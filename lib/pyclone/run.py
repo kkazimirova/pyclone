@@ -101,7 +101,7 @@ def my_plot_cellular_frequencies(args):
     # print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
     #     in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
 
-    plot.my_plot(pyclone_file, args.out_dir, args.size, args.burnin, args.thin)
+    plot.my_plot(pyclone_file, args.out_dir, args.size, args.burnin, args.thin, split=True)
 
 
 # def split_file_and_plot(args):
@@ -288,14 +288,18 @@ def build_random_samples_input_files(args):
 
 def random_samples_analyse(args):
 
+    if not os.path.exists(args.out_dir):
+        os.makedirs(args.out_dir)
+
     for file_name in os.listdir(args.in_dir):
         print (file_name)
 
-        file_path = args.in_dir + '/' + file_name
-        out_dir_path = args.out_dir + '/' + file_name
+        file_path = os.path.join(args.in_dir, file_name)
+        out_dir_path = os.path.join(args.out_dir, file_name)
 
         print (file_path)
         print (out_dir_path)
+
 
         data = load_pyclone_data(file_path)
 
@@ -319,22 +323,46 @@ def random_samples_analyse(args):
 
 
 def random_samples_plot_cf(args):
-    import pyclone.post_process.plot as plot
 
     if not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
 
     for dir in os.listdir(args.in_dir):
-        print (dir)
 
         cellular_file = os.path.join(args.in_dir, dir, 'cellular_frequencies.tsv.bz2')
         out_file = os.path.join(args.out_dir, dir)
-
-        print (cellular_file)
-        print (out_file)
 
         print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
             in_file=cellular_file, burnin=args.burnin, thin=args.thin)
 
         plot.plot_cellular_frequencies(cellular_file, out_file, args.burnin, args.thin)
+
+
+def my_random_samples_plot_cf(args):
+
+    if not os.path.exists(args.out_dir):
+        os.makedirs(args.out_dir)
+
+    if int(args.split):
+
+        for dir in os.listdir(args.in_dir):
+
+            cellular_file = os.path.join(args.in_dir, dir, 'cellular_frequencies.tsv.bz2')
+            out_dir = os.path.join(args.out_dir, dir)
+
+            # print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
+            #     in_file=cellular_file, burnin=args.burnin, thin=args.thin)
+
+            plot.my_plot(cellular_file, out_dir, args.size, args.burnin, args.thin, split=True)
+
+    else:
+        for dir in os.listdir(args.in_dir):
+
+            cellular_file = os.path.join(args.in_dir, dir, 'cellular_frequencies.tsv.bz2')
+            out_file = os.path.join(args.out_dir, dir)
+
+            # print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
+            #     in_file=cellular_file, burnin=args.burnin, thin=args.thin)
+
+            plot.my_plot(cellular_file, out_file, args.size, args.burnin, args.thin, split=False)
 
