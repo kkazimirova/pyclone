@@ -104,6 +104,14 @@ def my_plot_cellular_frequencies(args):
     plot.my_plot(pyclone_file, args.out_dir, args.size, args.burnin, args.thin, split=True)
 
 
+
+def agregate_and_plot(args):
+
+    # print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
+    #     in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
+
+    plot.agregate_and_plot(args.trace_dir, args.out_dir, args.size, args.burnin, args.thin, split=True)
+
 # def split_file_and_plot(args):
 #     if not os.path.exists(args.out_dir):
 #         os.makedirs(args.out_dir)

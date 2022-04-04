@@ -2,7 +2,7 @@ import math
 import os.path
 from collections import OrderedDict
 
-from pyclone.post_process.utils import load_cellular_frequencies_trace, load_cluster_labels_trace
+from pyclone.post_process.utils import load_cellular_frequencies_trace, load_agregate_cellular_frequencies
 
 from cellular_frequencies import CellularFrequencyPlot, DensitySorter, MyCellularFrequencyPlot
 from densities import PosteriorDensity
@@ -71,6 +71,57 @@ def plot_cellular_frequencies(trace_file, plot_file, burnin, thin):
 def my_plot(trace_file, plot_path, max_size, burnin, thin, split=True):
     trace = load_cellular_frequencies_trace(trace_file, burnin, thin)
     mutation_count = len(trace)
+
+    if split:
+        if not os.path.exists(plot_path):
+            os.makedirs(plot_path)
+
+        iters = int(math.ceil(mutation_count / float(max_size)))
+
+        sorter = DensitySorter(trace)
+        sorted_clusters = sorter.sort_clusters()
+        sorted_clusters = sorted_clusters[0]
+        sorted_clusters = list(reversed(sorted_clusters))
+
+        for i in range(iters):
+            iter_trace = OrderedDict()
+
+            if i == iters - 1:
+                for j in range(mutation_count % max_size):
+                    mut = sorted_clusters[(i * max_size) + j]
+                    iter_trace[mut] = trace[mut]
+            else:
+                for j in range(max_size):
+                    mut = sorted_clusters[(i * max_size) + j]
+                    iter_trace[mut] = trace[mut]
+
+            plot_file = os.path.join(plot_path, ("plot_" + str(i)))
+
+            plotter = MyCellularFrequencyPlot()
+            plotter.plot(iter_trace, plot_file)
+
+    else:
+        sorter = DensitySorter(trace)
+        sorted_clusters = sorter.sort_clusters()
+        sorted_clusters = sorted_clusters[0]
+        sorted_clusters = list(reversed(sorted_clusters))
+
+        iter_trace = OrderedDict()
+        for i in range(mutation_count):
+            mut = sorted_clusters[i]
+            iter_trace[mut] = trace[mut]
+
+        plotter = MyCellularFrequencyPlot()
+        plotter.plot(iter_trace, plot_path)
+
+
+def agregate_and_plot(analyse_dir, plot_path, max_size, burnin, thin, split=True):
+    print("analyse dir  " + analyse_dir)
+    trace = load_agregate_cellular_frequencies(analyse_dir, burnin, thin)
+    mutation_count = len(trace)
+
+    for key in trace:
+        print (key, len(trace[key]))
 
     if split:
         if not os.path.exists(plot_path):

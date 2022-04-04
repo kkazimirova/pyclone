@@ -218,7 +218,7 @@ class MyCellularFrequencyPlot(object):
         for i, (key, value) in enumerate(trace.iteritems()):
             data = value
             data = np.array(data)
-            subplot = sns.distplot(data, hist=False, kde=True, ax=axes[i], label=key)
+            subplot = sns.distplot(data, hist=False, kde=True, kde_kws={"bw":0.01}, ax=axes[i], label=key)
             subplot.legend(fontsize=15)
             subplot.set(yticklabels=[])
             axes[i].set_xlim(0, 1)

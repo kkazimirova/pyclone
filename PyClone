@@ -4,7 +4,7 @@
 import argparse
 from pyclone.run import build_input_file, plot_cellular_frequencies, run_dp_model, build_random_samples_input_files,\
                         random_samples_analyse, random_samples_plot_cf, split_and_plot, my_plot_cellular_frequencies, \
-                        my_random_samples_plot_cf
+                        my_random_samples_plot_cf, agregate_and_plot
 
 parser = argparse.ArgumentParser(prog='PyClone')
 
@@ -225,6 +225,29 @@ plot_cf_parser.add_argument('--thin', default=1, type=int,
                             after burning will be used for inference. Default is 1.''')
 
 plot_cf_parser.set_defaults(func=plot_cellular_frequencies)
+
+#----------------------------------------------------------------------------------------------------------------------
+plot_cf_parser = subparsers.add_parser('agregate_and_plot',
+                                       help='''Plot the posterior densities of the cellular frequencies of the mutations
+                                       from a PyClone analysis.''')
+
+plot_cf_parser.add_argument('trace_dir',
+                            help='Path to directory where the PyClone analysis trace was written.')
+
+plot_cf_parser.add_argument('out_dir',
+                            help='Path to file where plot will be saved.')
+
+plot_cf_parser.add_argument('--size', default=300, type=int,
+                            help='''Number of samples to plot in a file.''')
+
+plot_cf_parser.add_argument('--burnin', default=0, type=int,
+                            help='''Number of samples to discard as burning for the MCMC chain. Default is 0.''')
+
+plot_cf_parser.add_argument('--thin', default=1, type=int,
+                            help='''Number of samples to thin MCMC trace. For example if thin=10 every tenth sample
+                            after burning will be used for inference. Default is 1.''')
+
+plot_cf_parser.set_defaults(func=agregate_and_plot)
 
 #----------------------------------------------------------------------------------------------------------------------
 plot_cf_parser = subparsers.add_parser('my_plot_cellular_frequencies',
