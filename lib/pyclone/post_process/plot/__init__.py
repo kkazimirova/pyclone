@@ -95,7 +95,7 @@ def my_plot(trace_file, plot_path, max_size, burnin, thin, split=True):
                     mut = sorted_clusters[(i * max_size) + j]
                     iter_trace[mut] = trace[mut]
 
-            plot_file = os.path.join(plot_path, ("plot_" + str(i)))
+            plot_file = os.path.join(plot_path, ("plot_" + str(i) + ".pdf"))
 
             plotter = MyCellularFrequencyPlot()
             plotter.plot(iter_trace, plot_file)
@@ -112,7 +112,7 @@ def my_plot(trace_file, plot_path, max_size, burnin, thin, split=True):
             iter_trace[mut] = trace[mut]
 
         plotter = MyCellularFrequencyPlot()
-        plotter.plot(iter_trace, plot_path)
+        plotter.plot(iter_trace, (plot_path + ".pdf"))
 
 
 def agregate_and_plot(analyse_dir, plot_path, max_size, burnin, thin, split=True):
@@ -146,7 +146,7 @@ def agregate_and_plot(analyse_dir, plot_path, max_size, burnin, thin, split=True
                     mut = sorted_clusters[(i * max_size) + j]
                     iter_trace[mut] = trace[mut]
 
-            plot_file = os.path.join(plot_path, ("plot_" + str(i)))
+            plot_file = os.path.join(plot_path, ("plot_" + str(i) + ".pdf"))
 
             plotter = MyCellularFrequencyPlot()
             plotter.plot(iter_trace, plot_file)
@@ -163,6 +163,6 @@ def agregate_and_plot(analyse_dir, plot_path, max_size, burnin, thin, split=True
             iter_trace[mut] = trace[mut]
 
         plotter = MyCellularFrequencyPlot()
-        plotter.plot(iter_trace, plot_path)
+        plotter.plot(iter_trace, (plot_path + ".pdf"))
 
 

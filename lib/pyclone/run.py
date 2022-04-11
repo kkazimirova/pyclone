@@ -1,6 +1,7 @@
 from __future__ import division
 
 import csv
+import math
 import os
 import random
 import shutil
@@ -279,10 +280,16 @@ def build_random_samples_input_files(args):
 
         config['mutations'].append(mutation.to_dict())
 
-    for i in range(int(args.count)):
+    samples_count = int(math.ceil(len(config['mutations']) / args.size))
+
+    for i in range(samples_count):
+        random.shuffle(config['mutations'])
+
         sample = {}
         sample['error_rate'] = args.error_rate
-        sample['mutations'] = random.sample(config['mutations'], int(args.size))
+
+        sample['mutations'] = config['mutations'][:args.size]
+        config['mutations'] = config['mutations'][args.size:]
 
         file_name = '/sample_' + str(i)
         file_path = out_dir_path + file_name
