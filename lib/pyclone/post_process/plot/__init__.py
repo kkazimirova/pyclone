@@ -96,6 +96,7 @@ def my_plot(trace_file, plot_path, max_size, burnin, thin, split=True):
                     iter_trace[mut] = trace[mut]
 
             plot_file = os.path.join(plot_path, ("plot_" + str(i) + ".pdf"))
+            print(plot_file)
 
             plotter = MyCellularFrequencyPlot()
             plotter.plot(iter_trace, plot_file)
