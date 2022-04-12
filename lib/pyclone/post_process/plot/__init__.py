@@ -69,6 +69,7 @@ def plot_cellular_frequencies(trace_file, plot_file, burnin, thin):
 
 
 def my_plot(trace_file, plot_path, max_size, burnin, thin, split=True):
+    print ("aaaaaaaaaaach")
     trace = load_cellular_frequencies_trace(trace_file, burnin, thin)
     mutation_count = len(trace)
 
@@ -113,6 +114,8 @@ def my_plot(trace_file, plot_path, max_size, burnin, thin, split=True):
             iter_trace[mut] = trace[mut]
 
         plotter = MyCellularFrequencyPlot()
+        print(plot_path)
+
         plotter.plot(iter_trace, (plot_path + ".pdf"))
 
 
