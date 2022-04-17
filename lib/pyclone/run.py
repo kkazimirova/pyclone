@@ -5,16 +5,20 @@ import math
 import os
 import random
 import shutil
-
 import yaml
+import time
 
 from pyclone.sampler import DirichletProcessSampler, DataPoint
 from pyclone.trace import TraceDB
 from pyclone.config import load_mutation_from_dict, Mutation, State
 import pyclone.post_process.plot as plot
 
+# PATH_FILE = "C:/Users/Klara/Documents/PyClone/Pyclone_0.10.0/pyclone/Samples/Final/TimeComplexityFiles/times.txt"
+PATH_FILE = "C:/Users/kovacova/Documents/Klara/pyclone/Samples/TimeComplexity/times.txt"
 
 def run_dp_model(args):
+    start_time = time.time()
+
     data = load_pyclone_data(args.in_file)
 
     trace_db = TraceDB(args.out_dir, data.keys())
@@ -34,6 +38,12 @@ def run_dp_model(args):
     sampler.sample(data.values(), trace_db, num_iters=args.num_iters, seed=args.seed)
 
     trace_db.close()
+
+    print(args.out_dir + " ---> " + str(time.time() - start_time))
+
+    with open(PATH_FILE, "a") as time_file:
+        time_file.write(args.out_dir + " ---> " + str(time.time() - start_time) + "\n")
+
 
 
 def load_pyclone_data(file_name):
