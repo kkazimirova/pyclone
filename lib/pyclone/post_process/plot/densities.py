@@ -5,16 +5,6 @@ import scipy.stats as stats
 
 class PosteriorDensity(object):
     def __init__(self, sample_values, support=(0, 1), grid_size=1000):
-        '''
-        Fit a gaussian kernel density estimator to a set sample points for plotting.
-        
-        Args:
-            sample_values : (list) Values from MCMC sampler.
-        
-        Kwargs:
-            support : (tuple) The support of the density.
-            grid_size : (int) Number of points to evaluate density at.
-        '''
         sample_values = np.array(sample_values)
         
         sample_values += np.random.uniform(0, 1e-6, len(sample_values))

@@ -6,7 +6,6 @@ import os
 import random
 import shutil
 import yaml
-import time
 
 from pyclone.sampler import DirichletProcessSampler, DataPoint
 from pyclone.trace import TraceDB
@@ -16,22 +15,21 @@ import pyclone.post_process.plot as plot
 
 
 def run_dp_model(args):
-    # start_time = time.time()
-
     data = load_pyclone_data(args.in_file)
 
     trace_db = TraceDB(args.out_dir, data.keys())
 
-    # tumour_content = 1
-    # concentration = None
-    # concentration_prior_shape = 1
-    # concentration_prior_rate = 1
+    tumour_content = 1
+    concentration = None
+    concentration_prior_shape = 1
+    concentration_prior_rate = 1
+    seed = None
 
     try:
-        sampler = DirichletProcessSampler(args.tumour_content,
-                                          alpha=args.concentration,
-                                          alpha_shape=args.concentration_prior_shape,
-                                          alpha_rate=args.concentration_prior_rate)
+        sampler = DirichletProcessSampler(tumour_content,
+                                          alpha=concentration,
+                                          alpha_shape=concentration_prior_shape,
+                                          alpha_rate=concentration_prior_rate)
     except:
         trace_db.close()
 
@@ -39,14 +37,12 @@ def run_dp_model(args):
 
         raise
 
-    sampler.sample(data.values(), trace_db, num_iters=args.num_iters, seed=args.seed)
+    sampler.sample(data.values(), trace_db, num_iters=args.num_iters, seed=seed)
 
     trace_db.close()
 
-    # print(args.out_dir + " ---> " + str(time.time() - start_time))
-    #
-    # with open(PATH_FILE, "a") as time_file:
-    #     time_file.write(args.out_dir + " ---> " + str(time.time() - start_time) + "\n")
+
+    print ("Model inference successfully done.")
 
 
 
@@ -77,43 +73,41 @@ def load_pyclone_data(file_name):
     return data
 
 
-def plot_cellular_frequencies(args):
-    pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
+# def plot_cellular_frequencies(args):
+#     pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
+#
+#     print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
+#         in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
+#
+#     plot.plot_cellular_frequencies(pyclone_file, args.out_file, args.burnin, args.thin)
+#
 
-    print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
-        in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
-
-    plot.plot_cellular_frequencies(pyclone_file, args.out_file, args.burnin, args.thin)
-
-
-def split_and_plot(args):
-    if not os.path.exists(args.out_dir):
-        os.makedirs(args.out_dir)
-
-    pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
-
-    # print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
-    #     in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
-
-    plot.split_file_and_plot(pyclone_file, args.out_dir, args.size, args.burnin, args.thin)
+# def split_and_plot(args):
+#     if not os.path.exists(args.out_dir):
+#         os.makedirs(args.out_dir)
+#
+#     pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
+#
+#     burnin = 0
+#     thin = 1
+#
+#     plot.split_file_and_plot(pyclone_file, args.out_dir, args.size, burnin, thin)
 
 
 def my_plot_cellular_frequencies(args):
+    burnin = 0
+    thin = 1
     pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
 
-    # print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
-    #     in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
-
-    plot.my_plot(pyclone_file, args.out_dir, args.size, args.burnin, args.thin, split=True)
+    plot.my_plot(pyclone_file, args.out_dir, args.size, burnin, thin, split=True)
 
 
 
 def agregate_and_plot(args):
+    burnin = 0
+    thin = 1
 
-    # print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
-    #     in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
-
-    plot.agregate_and_plot(args.trace_dir, args.out_dir, args.size, args.burnin, args.thin, split=True)
+    plot.agregate_and_plot(args.trace_dir, args.out_dir, args.size, burnin, thin, split=True)
 
 
 def build_input_file(args):
@@ -239,7 +233,7 @@ def build_random_samples_input_files(args):
 
         config['mutations'].append(mutation.to_dict())
 
-    samples_count = int(math.ceil(len(config['mutations']) / args.random_sample_size))
+    samples_count = int(math.ceil(len(config['mutations']) / args.rs_size))
 
     for i in range(samples_count):
         random.shuffle(config['mutations'])
@@ -247,8 +241,8 @@ def build_random_samples_input_files(args):
         sample = {}
         sample['error_rate'] = error_rate
 
-        sample['mutations'] = config['mutations'][:args.random_sample_size]
-        config['mutations'] = config['mutations'][args.random_sample_size:]
+        sample['mutations'] = config['mutations'][:args.rs_size]
+        config['mutations'] = config['mutations'][args.rs_size:]
 
         file_name = '/sample_' + str(i)
         file_path = out_dir_path + file_name
@@ -264,6 +258,12 @@ def build_random_samples_input_files(args):
 
 def random_samples_analyse(args):
 
+    tumour_content = 1
+    concentration = None
+    concentration_prior_shape = 1
+    concentration_prior_rate = 1
+    seed = None
+
     if not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
 
@@ -273,19 +273,15 @@ def random_samples_analyse(args):
         file_path = os.path.join(args.in_dir, file_name)
         out_dir_path = os.path.join(args.out_dir, file_name)
 
-        print (file_path)
-        print (out_dir_path)
-
-
         data = load_pyclone_data(file_path)
 
         trace_db = TraceDB(out_dir_path, data.keys())
 
         try:
-            sampler = DirichletProcessSampler(args.tumour_content,
-                                              alpha=args.concentration,
-                                              alpha_shape=args.concentration_prior_shape,
-                                              alpha_rate=args.concentration_prior_rate)
+            sampler = DirichletProcessSampler(tumour_content,
+                                              alpha=concentration,
+                                              alpha_shape=concentration_prior_shape,
+                                              alpha_rate=concentration_prior_rate)
         except:
             trace_db.close()
 
@@ -293,28 +289,16 @@ def random_samples_analyse(args):
 
             raise
 
-        sampler.sample(data.values(), trace_db, num_iters=args.num_iters, seed=args.seed)
+        sampler.sample(data.values(), trace_db, num_iters=args.num_iters, seed=seed)
 
         trace_db.close()
 
-
-def random_samples_plot_cf(args):
-
-    if not os.path.exists(args.out_dir):
-        os.makedirs(args.out_dir)
-
-    for dir in os.listdir(args.in_dir):
-
-        cellular_file = os.path.join(args.in_dir, dir, 'cellular_frequencies.tsv.bz2')
-        out_file = os.path.join(args.out_dir, dir)
-
-        print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
-            in_file=cellular_file, burnin=args.burnin, thin=args.thin)
-
-        plot.plot_cellular_frequencies(cellular_file, out_file, args.burnin, args.thin)
+    print ("Model inference for all files successfully done.")
 
 
 def my_random_samples_plot_cf(args):
+    burnin = 0
+    thin = 1
 
     if not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
@@ -326,10 +310,9 @@ def my_random_samples_plot_cf(args):
             cellular_file = os.path.join(args.in_dir, dir, 'cellular_frequencies.tsv.bz2')
             out_dir = os.path.join(args.out_dir, dir)
 
-            # print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
-            #     in_file=cellular_file, burnin=args.burnin, thin=args.thin)
+            plot.my_plot(cellular_file, out_dir, args.size, burnin, thin, split=True)
 
-            plot.my_plot(cellular_file, out_dir, args.size, args.burnin, args.thin, split=True)
+        print ("Plot of cellular frequencies split and saved.")
 
     else:
         for dir in os.listdir(args.in_dir):
@@ -337,8 +320,7 @@ def my_random_samples_plot_cf(args):
             cellular_file = os.path.join(args.in_dir, dir, 'cellular_frequencies.tsv.bz2')
             out_file = os.path.join(args.out_dir, dir)
 
-            # print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
-            #     in_file=cellular_file, burnin=args.burnin, thin=args.thin)
+            plot.my_plot(cellular_file, out_file, args.size, burnin, thin, split=False)
 
-            plot.my_plot(cellular_file, out_file, args.size, args.burnin, args.thin, split=False)
+            print ("Plot of cellular frequencies saved.")
 

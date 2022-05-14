@@ -1,6 +1,3 @@
-'''
-Utility functions for post-processing the results of a PyClone analysis.
-'''
 import os
 from collections import defaultdict
 
@@ -15,7 +12,6 @@ def load_agregate_cellular_frequencies(analyse_dir, burnin, thin):
     trace = defaultdict(list)
 
     for dir in os.listdir(analyse_dir):
-        print("for dir ", dir)
         trace_file = os.path.join(analyse_dir, dir, 'cellular_frequencies.tsv.bz2')
 
         fh = bz2.BZ2File(trace_file)

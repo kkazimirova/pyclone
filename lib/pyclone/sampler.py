@@ -87,9 +87,7 @@ class DirichletProcessSampler(object):
 # DP Samplers
 #=======================================================================================================================
 class AtomSampler(object):
-    '''
-    Update the atom values using a Metropolis-Hastings steps with the base measure as a proposal density.
-    '''
+
     def __init__(self, base_measure):
         self.base_measure = base_measure
         
@@ -118,16 +116,7 @@ class AtomSampler(object):
                 cell.value = new_param
                 
 class ConcentrationSampler(object):
-    '''
-    Sampler for updating concentration parameter. Uses Gibbs update assuming a gamma prior on the concentration
-    parameter.
-    '''
     def __init__(self, a, b):
-        '''
-        Args :
-            a : (float) Location parameter of the gamma prior.
-            b : (float) Scale parameter of the gamma prior.
-        '''
         self.a = a
         self.b = b
     
@@ -156,18 +145,12 @@ class ConcentrationSampler(object):
         return new_value                
 
 class PartitionSampler(object):
-    '''
-    Sampler for updating parition of the data. Uses algorithm 8 of Neal "Sampling Methods For Dirichlet Process Mixture
-    Models".
-    '''
     
     def __init__(self, base_measure):
         self.base_measure = base_measure
     
     def sample(self, data, partition, alpha, m=2):
-        '''
-        Sample a new partition. 
-        '''
+
         items = range(len(data))
         
         shuffle(items)
@@ -220,9 +203,6 @@ class PartitionSampler(object):
 Parameter = namedtuple('Parameter', ['phi', 's'])
 
 class BaseMeasure(object):
-    '''
-    Class to sampler from the PyClone base measure.
-    '''
     def __init__(self, tumour_content):
         self.tumour_content = tumour_content
         
@@ -232,9 +212,6 @@ class BaseMeasure(object):
         return Parameter(phi, self.tumour_content)
     
 class BaseMeasureProposalFunction(object):
-    '''
-    Proposal function for atom sampler which draw values from a base measure.
-    '''
     def __init__(self, base_measure):
         self.base_measure = base_measure
         
@@ -424,15 +401,7 @@ class PartitionCell(object):
 # Utility functions
 #=======================================================================================================================
 def discrete_rvs(p):
-    '''
-    Return a discrete random variable.
-    
-    Args:
-        p : An iterable containing the probabilites for each class.
-        
-    Returns:
-        x : (int) The index of the class drawn.
-    '''
+
     x = multinomial(1, p)
     
     return x.argmax()
