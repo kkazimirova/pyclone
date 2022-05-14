@@ -2,13 +2,11 @@
 
 #=======================================================================================================================
 import argparse
-from pyclone.run import build_input_file,  run_dp_model, build_random_samples_input_files,\
-                        random_samples_analyse, my_plot_cellular_frequencies, \
-                        my_random_samples_plot_cf, agregate_and_plot
+from dp_model.run import build_input_file,  run_dp_model, build_random_samples_input_files,\
+                        random_samples_analyse, plot_cellular_frequencies, \
+                        random_samples_plot_cf, agregate_and_plot
 
-parser = argparse.ArgumentParser(prog='PyClone')
-
-parser.add_argument('--version', action='version', version='PyClone-0.10.0')
+parser = argparse.ArgumentParser(prog='DpModel')
 
 subparsers = parser.add_subparsers()
 
@@ -85,7 +83,7 @@ random_samples_plot_parser.add_argument('--split', choices=["0", "1"], default=1
 random_samples_plot_parser.add_argument('--size', default=300, type=int,
                                         help='''If split is 1 then size is number of samples to plot in one file. Minimum is 2. ''')
 
-random_samples_plot_parser.set_defaults(func=my_random_samples_plot_cf)
+random_samples_plot_parser.set_defaults(func=random_samples_plot_cf)
 
 #----------------------------------------------------------------------------------------------------------------------
 plot_cf_parser = subparsers.add_parser('agregate_and_plot_cf',
@@ -117,7 +115,7 @@ plot_cf_parser.add_argument('--size', default=300, type=int,
 
 
 
-plot_cf_parser.set_defaults(func=my_plot_cellular_frequencies)
+plot_cf_parser.set_defaults(func=plot_cellular_frequencies)
 #----------------------------------------------------------------------------------------------------------------------
 
 

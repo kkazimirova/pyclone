@@ -1,18 +1,13 @@
 from distutils.core import setup
 
 setup(
-      name='PyClone',
-      version='0.10.0',
-      description='Python tools for analysing clonal evolution using NGS data.',
-      author='Andrew Roth',
-      author_email='andrewjlroth@gmail.com',
-      url='http://compbio.bccrc.ca',
-      package_dir = {'': 'lib'},    
-      packages=[ 
-                'pyclone',
-                'pyclone.post_process',
-                'pyclone.post_process.plot'
+      name='DpModel',
+      version='1.0.0',
+      package_dir = {'': 'lib'},
+      packages=[
+                'dp_model',
+                'dp_model.post_process',
+                'dp_model.post_process.plot'
                 ],
-      scripts=['PyClone'],
-      data_files = [("", ["LICENSE.txt", "examples/simple.tsv", "examples/advanced.yaml"])]
+      scripts=['DpModel'],
      )

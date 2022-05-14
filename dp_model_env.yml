@@ -1,4 +1,4 @@
-name: pyclone_env_0.10.0
+name: dp_model_env
 channels:
   - conda-forge
   - defaults
@@ -91,5 +91,3 @@ dependencies:
   - zlib=1.2.11=h3cc03e0_3
   - pip:
     - pathlib==1.0.1
-    - pyclone==0.10.0
-prefix: C:\Users\Klara\Anaconda3\envs\pyclone_env_0.10.0

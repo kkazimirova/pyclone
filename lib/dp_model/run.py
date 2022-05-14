@@ -5,17 +5,17 @@ import math
 import os
 import random
 import shutil
+
 import yaml
 
-from pyclone.sampler import DirichletProcessSampler, DataPoint
-from pyclone.trace import TraceDB
-from pyclone.config import load_mutation_from_dict, Mutation, State
-import pyclone.post_process.plot as plot
-
+import dp_model.post_process.plot as plot
+from dp_model.config import load_mutation_from_dict, Mutation, State
+from dp_model.sampler import DirichletProcessSampler, DataPoint
+from dp_model.trace import TraceDB
 
 
 def run_dp_model(args):
-    data = load_pyclone_data(args.in_file)
+    data = load_data(args.in_file)
 
     trace_db = TraceDB(args.out_dir, data.keys())
 
@@ -41,12 +41,10 @@ def run_dp_model(args):
 
     trace_db.close()
 
-
     print ("Model inference successfully done.")
 
 
-
-def load_pyclone_data(file_name):
+def load_data(file_name):
     data = {}
 
     fh = open(file_name)
@@ -73,34 +71,12 @@ def load_pyclone_data(file_name):
     return data
 
 
-# def plot_cellular_frequencies(args):
-#     pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
-#
-#     print '''Plotting cellular frequencies from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
-#         in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
-#
-#     plot.plot_cellular_frequencies(pyclone_file, args.out_file, args.burnin, args.thin)
-#
-
-# def split_and_plot(args):
-#     if not os.path.exists(args.out_dir):
-#         os.makedirs(args.out_dir)
-#
-#     pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
-#
-#     burnin = 0
-#     thin = 1
-#
-#     plot.split_file_and_plot(pyclone_file, args.out_dir, args.size, burnin, thin)
-
-
-def my_plot_cellular_frequencies(args):
+def plot_cellular_frequencies(args):
     burnin = 0
     thin = 1
-    pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
+    f = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
 
-    plot.my_plot(pyclone_file, args.out_dir, args.size, burnin, thin, split=True)
-
+    plot.plot(f, args.out_dir, args.size, burnin, thin, split=True)
 
 
 def agregate_and_plot(args):
@@ -142,7 +118,6 @@ def build_input_file(args):
             mutation.add_state(state)
 
         config['mutations'].append(mutation.to_dict())
-
 
     fh = open(args.out_file, 'w')
 
@@ -257,7 +232,6 @@ def build_random_samples_input_files(args):
 
 
 def random_samples_analyse(args):
-
     tumour_content = 1
     concentration = None
     concentration_prior_shape = 1
@@ -273,7 +247,7 @@ def random_samples_analyse(args):
         file_path = os.path.join(args.in_dir, file_name)
         out_dir_path = os.path.join(args.out_dir, file_name)
 
-        data = load_pyclone_data(file_path)
+        data = load_data(file_path)
 
         trace_db = TraceDB(out_dir_path, data.keys())
 
@@ -296,7 +270,7 @@ def random_samples_analyse(args):
     print ("Model inference for all files successfully done.")
 
 
-def my_random_samples_plot_cf(args):
+def random_samples_plot_cf(args):
     burnin = 0
     thin = 1
 
@@ -306,21 +280,18 @@ def my_random_samples_plot_cf(args):
     if int(args.split):
 
         for dir in os.listdir(args.in_dir):
-
             cellular_file = os.path.join(args.in_dir, dir, 'cellular_frequencies.tsv.bz2')
             out_dir = os.path.join(args.out_dir, dir)
 
-            plot.my_plot(cellular_file, out_dir, args.size, burnin, thin, split=True)
+            plot.plot(cellular_file, out_dir, args.size, burnin, thin, split=True)
 
         print ("Plot of cellular frequencies split and saved.")
 
     else:
         for dir in os.listdir(args.in_dir):
-
             cellular_file = os.path.join(args.in_dir, dir, 'cellular_frequencies.tsv.bz2')
             out_file = os.path.join(args.out_dir, dir)
 
-            plot.my_plot(cellular_file, out_file, args.size, burnin, thin, split=False)
+            plot.plot(cellular_file, out_file, args.size, burnin, thin, split=False)
 
             print ("Plot of cellular frequencies saved.")
-
