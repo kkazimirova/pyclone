@@ -212,7 +212,7 @@ class MyCellularFrequencyPlot(object):
         sns.set(style="white")
 
         number_of_mutations = len(trace)
-        plot, axes = plt.subplots(number_of_mutations, 1, figsize=(50, 2 * number_of_mutations))
+        plot, axes = plt.subplots(number_of_mutations, 1, figsize=(30, 2 * number_of_mutations))
         plot.tight_layout()
 
         for i, (key, value) in enumerate(trace.iteritems()):

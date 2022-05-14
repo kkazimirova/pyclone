@@ -14,7 +14,7 @@ from pyclone.config import load_mutation_from_dict, Mutation, State
 import pyclone.post_process.plot as plot
 
 # PATH_FILE = "C:/Users/Klara/Documents/PyClone/Pyclone_0.10.0/pyclone/Samples/Final/TimeComplexityFiles/times.txt"
-PATH_FILE = "C:/Users/kovacova/Documents/Klara/pyclone/Samples/TimeComplexity/times.txt"
+# PATH_FILE = "C:/Users/kovacova/Documents/Klara/pyclone/Samples/TimeComplexity/times.txt"
 
 def run_dp_model(args):
     start_time = time.time()
@@ -39,10 +39,10 @@ def run_dp_model(args):
 
     trace_db.close()
 
-    print(args.out_dir + " ---> " + str(time.time() - start_time))
-
-    with open(PATH_FILE, "a") as time_file:
-        time_file.write(args.out_dir + " ---> " + str(time.time() - start_time) + "\n")
+    # print(args.out_dir + " ---> " + str(time.time() - start_time))
+    #
+    # with open(PATH_FILE, "a") as time_file:
+    #     time_file.write(args.out_dir + " ---> " + str(time.time() - start_time) + "\n")
 
 
 

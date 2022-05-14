@@ -8,7 +8,7 @@ class TraceDB(object):
             raise Exception("{0} exists, cannot overwrite.".format(out_dir))
     
         if not os.path.exists(os.path.dirname(os.path.abspath(out_dir))):
-            raise Exception("Folder {0} does not exist to create pyclone file in.".format(os.path.dirname(out_dir)))
+            raise Exception("Folder {0} does not exist to create file in.".format(os.path.dirname(out_dir)))
         
         os.makedirs(out_dir)
   
@@ -19,9 +19,6 @@ class TraceDB(object):
         self._labels_writer.writerow(mutations)
 
     def _open_files(self, out_dir):
-        '''
-        Load the shelve db object if it exists, otherwise initialise.
-        '''
         mode = 'w'
         
         self._alpha_file = bz2.BZ2File(os.path.join(out_dir, 'alpha.tsv.bz2'), mode)
@@ -30,7 +27,7 @@ class TraceDB(object):
         
         self._labels_file = bz2.BZ2File(os.path.join(out_dir, 'labels.tsv.bz2'), mode)
         
-        self._phi_file = bz2.BZ2File(os.path.join(out_dir, 'phi.tsv.bz2'), mode)        
+        self._phi_file = bz2.BZ2File(os.path.join(out_dir, 'phi.tsv.bz2'), mode)
 
         self._alpha_writer = csv.writer(self._alpha_file, delimiter='\t')
             

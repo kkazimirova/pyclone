@@ -50,7 +50,7 @@ def split_file_and_plot(trace_file, plot_dir, max_size, burnin, thin):
                 mut = sorted_clusters[(i+1) * max_size - j - 1]
                 iter_trace[mut] = trace[mut]
 
-        plot_file = os.path.join(plot_dir, ("plot" + str(i)))
+        plot_file = os.path.join(plot_dir, ("plot" + str(i)) +".pdf")
         plotter = CellularFrequencyPlot(iter_trace, cmap=colors)
 
         print("Plotting " + str(i) + " file of " + str(iters - 1))
@@ -69,7 +69,6 @@ def plot_cellular_frequencies(trace_file, plot_file, burnin, thin):
 
 
 def my_plot(trace_file, plot_path, max_size, burnin, thin, split=True):
-    print ("aaaaaaaaaaach")
     trace = load_cellular_frequencies_trace(trace_file, burnin, thin)
     mutation_count = len(trace)
 
