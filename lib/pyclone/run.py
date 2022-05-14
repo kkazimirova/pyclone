@@ -13,15 +13,19 @@ from pyclone.trace import TraceDB
 from pyclone.config import load_mutation_from_dict, Mutation, State
 import pyclone.post_process.plot as plot
 
-# PATH_FILE = "C:/Users/Klara/Documents/PyClone/Pyclone_0.10.0/pyclone/Samples/Final/TimeComplexityFiles/times.txt"
-# PATH_FILE = "C:/Users/kovacova/Documents/Klara/pyclone/Samples/TimeComplexity/times.txt"
+
 
 def run_dp_model(args):
-    start_time = time.time()
+    # start_time = time.time()
 
     data = load_pyclone_data(args.in_file)
 
     trace_db = TraceDB(args.out_dir, data.keys())
+
+    # tumour_content = 1
+    # concentration = None
+    # concentration_prior_shape = 1
+    # concentration_prior_rate = 1
 
     try:
         sampler = DirichletProcessSampler(args.tumour_content,
@@ -73,18 +77,6 @@ def load_pyclone_data(file_name):
     return data
 
 
-# def cluster_trace(args):
-#     from pyclone.post_process.cluster import cluster_pyclone_trace
-#
-#     pyclone_file = os.path.join(args.trace_dir, 'labels.tsv.bz2')
-#
-#     print '''Clustering PyClone trace file {in_file} using {method} with a burnin of {burnin} and using every {thin}th sample'''.format(
-#         in_file=pyclone_file, method=args.method, burnin=args.burnin, thin=args.thin)
-#
-#     cluster_pyclone_trace(pyclone_file, args.out_file, args.method, args.burnin, args.thin)
-
-
-
 def plot_cellular_frequencies(args):
     pyclone_file = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
 
@@ -123,63 +115,15 @@ def agregate_and_plot(args):
 
     plot.agregate_and_plot(args.trace_dir, args.out_dir, args.size, args.burnin, args.thin, split=True)
 
-# def split_file_and_plot(args):
-#     if not os.path.exists(args.out_dir):
-#         os.makedirs(args.out_dir)
-#
-#     size_per_file = 500
-#
-#     cell_freq_file_path = os.path.join(args.trace_dir, 'cellular_frequencies.tsv.bz2')
-#     cell_freq_file = bz2.BZ2File(cell_freq_file_path)
-#     df_cell_freq = pandas.read_csv(cell_freq_file, sep='\t')
-#
-#     columns = len(df_cell_freq.columns)
-#
-#     iter = int(math.ceil(columns / size_per_file))
-#
-#     print (columns)
-#
-#     for i in range(iter):
-#         if (i + 1)*size_per_file < columns:
-#
-#             df_subset = df_cell_freq.iloc[:, i*size_per_file:(i + 1)*size_per_file]
-#         else:
-#             df_subset = df_cell_freq.iloc[:, i * size_per_file:]
-#
-#         file_name = 'cell_freq_' + str(i) + '.tsv'
-#         path = os.path.join(args.trace_dir, file_name)
-#         df_subset.to_csv(path, sep='\t', index=False)
-#         print ('created csv')
-#         bz2_file = bz2.compress(open(path, 'rb').read())
-#         final_file = file_name + '.bz2'
-#         final_file_path = os.path.join(args.trace_dir, final_file)
-#         bla = open(final_file_path, "wb")
-#         bla.write(bz2_file)
-#         bla.close()
-#         print ('compressed')
-#
-#         import pyclone.post_process.plot as plot
-#         plot_file = os.path.join(args.out_dir, ('plot_' + str(i)))
-#         plot.plot_cellular_frequencies(final_file_path, plot_file, args.burnin, args.thin)
-#
-#     cell_freq_file.close()
-
-
-# def plot_similarity_matrix(args):
-#     import pyclone.post_process.plot as plot
-#
-#     pyclone_file = os.path.join(args.trace_dir, 'labels.tsv.bz2')
-#
-#     print '''Plotting similarity matrix from the PyClone trace file {in_file} with a burnin of {burnin} and using every {thin}th sample'''.format(
-#         in_file=pyclone_file, burnin=args.burnin, thin=args.thin)
-#
-#     plot.plot_similarity_matrix(pyclone_file, args.out_file, args.burnin, args.thin)
-
 
 def build_input_file(args):
+    error_rate = 1e-3
+    cn_r = 'vague'
+    g_v = 'vague'
+
     config = {}
 
-    config['error_rate'] = args.error_rate
+    config['error_rate'] = error_rate
 
     reader = csv.DictReader(open(args.in_file), delimiter='\t')
 
@@ -198,7 +142,7 @@ def build_input_file(args):
 
         cn_v = int(row['cn_v'])
 
-        states = _get_states(cn_n, cn_v, args.cn_r, args.g_v)
+        states = _get_states(cn_n, cn_v, cn_r, g_v)
 
         for state in states:
             mutation.add_state(state)
@@ -211,6 +155,8 @@ def build_input_file(args):
     yaml.dump(config, fh)
 
     fh.close()
+
+    print ("Input file to Dirichlet process model created.")
 
 
 def _get_states(cn_n, cn_v, cn_r_method, g_v_method):
@@ -259,6 +205,9 @@ def list_to_csv(l):
 
 
 def build_random_samples_input_files(args):
+    error_rate = 1e-3
+    cn_r = 'vague'
+    g_v = 'vague'
 
     out_dir_path = args.out_dir
     if not os.path.exists(out_dir_path):
@@ -283,23 +232,23 @@ def build_random_samples_input_files(args):
 
         cn_v = int(row['cn_v'])
 
-        states = _get_states(cn_n, cn_v, args.cn_r, args.g_v)
+        states = _get_states(cn_n, cn_v, cn_r, g_v)
 
         for state in states:
             mutation.add_state(state)
 
         config['mutations'].append(mutation.to_dict())
 
-    samples_count = int(math.ceil(len(config['mutations']) / args.size))
+    samples_count = int(math.ceil(len(config['mutations']) / args.random_sample_size))
 
     for i in range(samples_count):
         random.shuffle(config['mutations'])
 
         sample = {}
-        sample['error_rate'] = args.error_rate
+        sample['error_rate'] = error_rate
 
-        sample['mutations'] = config['mutations'][:args.size]
-        config['mutations'] = config['mutations'][args.size:]
+        sample['mutations'] = config['mutations'][:args.random_sample_size]
+        config['mutations'] = config['mutations'][args.random_sample_size:]
 
         file_name = '/sample_' + str(i)
         file_path = out_dir_path + file_name
@@ -309,6 +258,8 @@ def build_random_samples_input_files(args):
         yaml.dump(sample, fh)
 
         fh.close()
+
+    print ("Input files to Dirichlet process model created.")
 
 
 def random_samples_analyse(args):
